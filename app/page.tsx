@@ -1,5 +1,5 @@
 import { getVotingEndsAt, loadPublicData } from "@/lib/results";
-import VotingView from "@/components/voting/VotingView";
+import HomePageView from "@/components/voting/HomePageView";
 import ResultsView from "@/components/results/ResultsView";
 
 export const dynamic = "force-dynamic";
@@ -12,5 +12,5 @@ export default async function HomePage() {
   }
 
   const categories = await loadPublicData();
-  return <VotingView votingEndsAt={endsAt} initialCategories={categories} />;
+  return <HomePageView votingEndsAt={endsAt} categories={categories} />;
 }

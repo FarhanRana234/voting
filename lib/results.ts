@@ -2,7 +2,7 @@ import "server-only";
 
 import { getAdminDb, Timestamp } from "@/lib/firebase/admin";
 import { SETTINGS_DOC, PARTICIPANT_VOTES_COLLECTION } from "@/lib/constants";
-import type { Category, Participant, WinnerResult } from "@/lib/types";
+import type { Category, CategoryWithParticipants, Participant, WinnerResult } from "@/lib/types";
 
 export async function getVotingEndsAt(): Promise<number | null> {
   const snap = await getAdminDb().doc(SETTINGS_DOC).get();
@@ -17,7 +17,7 @@ export async function isVotingOpen(now = Date.now()): Promise<boolean> {
   return endsAt == null ? true : now < endsAt;
 }
 
-export async function loadPublicData() {
+export async function loadPublicData(): Promise<CategoryWithParticipants[]> {
   const db = getAdminDb();
 
   const [categoriesSnap, participantsSnap] = await Promise.all([
@@ -50,6 +50,35 @@ export async function loadPublicData() {
     ...c,
     participants: (participantsByCategory.get(c.id) ?? []).sort((a, b) => a.order - b.order),
   }));
+}
+
+export async function loadCategoryData(categoryId: string): Promise<CategoryWithParticipants | null> {
+  const db = getAdminDb();
+
+  const [catSnap, participantsSnap] = await Promise.all([
+    db.collection("categories").doc(categoryId).get(),
+    db.collection("participants").where("categoryId", "==", categoryId).get(),
+  ]);
+
+  if (!catSnap.exists) return null;
+
+  const participants: Participant[] = participantsSnap.docs
+    .map((d) => ({
+      id: d.id,
+      categoryId: d.get("categoryId") as string,
+      name: d.get("name") as string,
+      photoUrl: d.get("photoUrl") ?? null,
+      order: d.get("order") ?? 0,
+    }))
+    .sort((a, b) => a.order - b.order);
+
+  return {
+    id: catSnap.id,
+    name: catSnap.get("name") as string,
+    imageUrl: catSnap.get("imageUrl") ?? null,
+    order: catSnap.get("order") ?? 0,
+    participants,
+  };
 }
 
 export interface LiveResults {
