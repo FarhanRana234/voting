@@ -1,0 +1,30 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /settings/{docId} {
+      allow read: if true;   // needed publicly for the countdown / open-vs-closed check
+      allow write: if false; // set only via Admin SDK
+    }
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if false; // writes only via Admin SDK / server routes
+    }
+    match /participants/{participantId} {
+      allow read: if true;   // public fields only — no voteCount lives here
+      allow write: if false;
+    }
+    match /participantVotes/{participantId} {
+      // vote counts are NEVER visible to normal visitors — only the signed-in admin session
+      // (custom claim set when the admin logs in) may read this collection.
+      allow read: if request.auth != null && request.auth.token.admin == true;
+      allow write: if false; // counts only change via Admin SDK in /api routes
+    }
+    match /votes/{voteId} {
+      allow read, write: if false; // never exposed to client directly
+    }
+    match /adminSessions/{sessionId} {
+      allow read, write: if false;
+    }
+  }
+}
