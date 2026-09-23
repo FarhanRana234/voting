@@ -134,6 +134,7 @@ service cloud.firestore {
       allow read, write: if false;
     }
   }
+}
 ```
 
 ## 8. Environment Variables (Vercel)

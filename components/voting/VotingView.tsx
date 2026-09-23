@@ -37,6 +37,7 @@ export default function VotingView({ votingEndsAt, initialCategories }: Props) {
   const router = useRouter();
   const categories = initialCategories;
   const [votedIn, setVotedIn] = useState<Record<string, string>>({});
+  const allVoted = Object.keys(votedIn).length === categories.length;
   const [pending, setPending] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -122,7 +123,6 @@ export default function VotingView({ votingEndsAt, initialCategories }: Props) {
 
           {categories.map((category, idx) => {
             const votedParticipantId = votedIn[category.id];
-            const allVoted = Object.keys(votedIn).length === categories.length;
             const locked = Boolean(votedParticipantId);
 
             return (
