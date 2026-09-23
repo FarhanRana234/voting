@@ -1,45 +1,33 @@
 import { NextResponse } from "next/server";
-import { randomUUID } from "crypto";
 import { requireAdmin } from "@/lib/session";
-import { getAdminStorage } from "@/lib/firebase/admin";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-const MAX_BYTES = 5 * 1024 * 1024;
+// Firestore documents have a 1MB total limit; keep the stored data URL well below it.
+const MAX_DATA_URL_CHARS = 900_000;
+const MAX_DECODED_BYTES = 550 * 1024;
 
 export async function POST(request: Request) {
   const authed = await requireAdmin();
   if (!authed) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
 
-  const form = await request.formData().catch(() => null);
-  const file = form?.get("file");
-  const kind = form?.get("kind");
+  const body = await request.json().catch(() => null);
+  const raw = typeof body?.dataUrl === "string" ? body.dataUrl : "";
 
-  if (!(file instanceof File)) {
-    return NextResponse.json({ error: "A file is required." }, { status: 400 });
-  }
-  if (file.size > MAX_BYTES) {
-    return NextResponse.json({ error: "Image must be 5MB or smaller." }, { status: 400 });
-  }
-  if (!file.type.startsWith("image/")) {
-    return NextResponse.json({ error: "Only image files are allowed." }, { status: 400 });
+  if (!raw || raw.length > MAX_DATA_URL_CHARS) {
+    return NextResponse.json({ error: "Invalid or oversized image." }, { status: 400 });
   }
 
-  const safeKind = kind === "category" ? "categories" : "participants";
-  const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-  const fileName = `${randomUUID()}.${ext}`;
-  const path = `uploads/${safeKind}/${fileName}`;
+  const match = raw.match(/^data:image\/(png|jpe?g|webp);base64,(.+)$/i);
+  if (!match) {
+    return NextResponse.json({ error: "Only base64 PNG, JPEG or WebP images are allowed." }, { status: 400 });
+  }
 
-  const bucket = getAdminStorage().bucket();
-  const buffer = Buffer.from(await file.arrayBuffer());
+  const decodedBytes = Math.floor((match[2].length * 3) / 4);
+  if (decodedBytes > MAX_DECODED_BYTES) {
+    return NextResponse.json({ error: "Image too large after encoding. Use a smaller photo." }, { status: 400 });
+  }
 
-  const blob = bucket.file(path);
-  await blob.save(buffer, {
-    metadata: { contentType: file.type },
-    resumable: file.size > 4 * 1024 * 1024,
-  });
-  await blob.makePublic();
-
-  const url = `https://storage.googleapis.com/${bucket.name}/${encodeURIComponent(path)}`;
-  return NextResponse.json({ url });
+  return NextResponse.json({ url: raw });
 }

@@ -3,7 +3,6 @@ import "server-only";
 import { cert, getApps, initializeApp, type App } from "firebase-admin/app";
 import { getFirestore, type Firestore } from "firebase-admin/firestore";
 import { getAuth, type Auth } from "firebase-admin/auth";
-import { getStorage, type Storage } from "firebase-admin/storage";
 
 function credentials() {
   if (!process.env.FIREBASE_ADMIN_PROJECT_ID || !process.env.FIREBASE_ADMIN_CLIENT_EMAIL || !process.env.FIREBASE_ADMIN_PRIVATE_KEY) {
@@ -23,7 +22,6 @@ function credentials() {
 let adminApp: App | undefined;
 let adminDb: Firestore | undefined;
 let adminAuth: Auth | undefined;
-let adminStorage: Storage | undefined;
 
 export function getAdminApp(): App {
   if (!adminApp) {
@@ -46,13 +44,6 @@ export function getAdminAuth(): Auth {
     adminAuth = getAuth(getAdminApp());
   }
   return adminAuth;
-}
-
-export function getAdminStorage(): Storage {
-  if (!adminStorage) {
-    adminStorage = getStorage(getAdminApp());
-  }
-  return adminStorage;
 }
 
 export { Timestamp, FieldValue } from "firebase-admin/firestore";

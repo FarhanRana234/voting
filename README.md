@@ -56,10 +56,8 @@ npm run dev                         # http://localhost:3000
 ## Firebase setup (one time)
 
 1. **Enable services** in the Firebase Console for project `voting-4e261`:
-   - **Authentication** → Sign-in method → *Email/Password* (**not needed** but harmless; custom
-     tokens work without it) — actually custom token sign-in works with no providers enabled.
+   - **Authentication** → Sign-in method → custom token sign-in works with no providers enabled.
    - **Firestore Database** → Create database (production mode).
-   - **Storage** → Create storage bucket (defaults are fine).
 2. **Deploy security rules** (all public writes denied; only `settings`, `categories`,
    `participants` are publicly readable; `participantVotes` readable only by the admin session):
 
@@ -96,13 +94,15 @@ votes/{voterId_categoryId}          voterId, categoryId, participantId, createdA
 | `…/api/admin/participants` (+ `/[id]`) | List/create/rename/delete participants & photos |
 | `POST /api/admin/vote-adjust` | Manual +/- on a vote count (never below 0) |
 | `GET|PATCH /api/admin/settings` | Read/update the voting end time |
-| `POST /api/admin/upload` | Upload an image to Firebase Storage (public URL returned) |
+| `POST /api/admin/upload` | Validate & return a resized image (data URL stored on a doc) |
 
 ## Images
 
-Uploads go **only** through `POST /api/admin/upload` (Admin SDK → Firebase Storage → public URL),
-then the URL is saved on the `categories`/`participants` doc. Never upload from the browser SDK
-directly.
+No Firebase Storage is required. The admin dashboard downscales images on a canvas (max 800px,
+JPEG/WebP) and sends the resulting **base64 data URL** to `POST /api/admin/upload`, which
+validates/downsizes it and returns it. The data URL is then saved as `photoUrl` / `imageUrl` on
+the `participants` / `categories` doc. It's stored directly in Firestore, so keep photos small
+(the client caps them at ~800×800).
 
 ## Deployment (Vercel)
 

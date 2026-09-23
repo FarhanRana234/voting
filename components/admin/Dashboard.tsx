@@ -6,6 +6,7 @@ import Link from "next/link";
 import { onSnapshot, collection, query } from "firebase/firestore";
 import { signInWithCustomToken, signOut } from "firebase/auth";
 import { getClientAuth, getClientDb } from "@/lib/firebase/client";
+import { fileToResizedDataUrl } from "@/lib/image";
 import { PARTICIPANT_VOTES_COLLECTION } from "@/lib/constants";
 import type { Category, Participant } from "@/lib/types";
 
@@ -164,18 +165,25 @@ export default function Dashboard() {
     if (!res.ok) addToast("Could not adjust votes.", "err");
   }
 
-  async function uploadImage(file: File, kind: "category" | "participant"): Promise<string | null> {
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("kind", kind);
-    const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      addToast(data.error ?? "Upload failed.", "err");
+  async function uploadImage(file: File, _kind: "category" | "participant"): Promise<string | null> {
+    try {
+      const dataUrl = await fileToResizedDataUrl(file);
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dataUrl }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        addToast(data.error ?? "Upload failed.", "err");
+        return null;
+      }
+      const data = await res.json();
+      return data.url as string;
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : "Could not process that image.", "err");
       return null;
     }
-    const data = await res.json();
-    return data.url as string;
   }
 
   async function addCategory() {
