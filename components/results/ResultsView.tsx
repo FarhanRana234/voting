@@ -177,10 +177,6 @@ export default function ResultsView({ mode }: { mode: "home" | "results" }) {
             </div>
           )}
         </section>
-
-        <footer className="relative z-10 bg-blossom-sage/10 py-6 text-center text-xs font-semibold text-blossom-sage">
-          <p>Blossom Events · Tando Adam Eat Festival</p>
-        </footer>
       </div>
     </main>
   );

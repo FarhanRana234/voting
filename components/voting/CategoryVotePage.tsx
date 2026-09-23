@@ -188,10 +188,6 @@ export default function CategoryVotePage({ category }: Props) {
           )}
         </section>
 
-        <footer className="relative z-10 bg-blossom-sage/10 py-6 text-center text-xs font-semibold text-blossom-sage">
-          <p>Blossom Events · Tando Adam Eat Festival · One vote per category</p>
-        </footer>
-
         {!loaded && (
           <div className="fixed inset-0 z-40 flex items-center justify-center bg-blossom-skin/70 backdrop-blur-sm">
             <span className="font-semibold text-blossom-sage">Loading…</span>

@@ -69,10 +69,6 @@ export default function HomePageView({ votingEndsAt, categories }: Props) {
             )}
           </div>
         </section>
-
-        <footer className="relative z-10 bg-blossom-sage/10 py-6 text-center text-xs font-semibold text-blossom-sage">
-          <p>Blossom Events · Tando Adam Eat Festival · One vote per category</p>
-        </footer>
       </div>
     </main>
   );
