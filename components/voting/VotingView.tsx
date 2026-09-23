@@ -97,15 +97,28 @@ export default function VotingView({ votingEndsAt, initialCategories }: Props) {
 
         <header className="mx-auto max-w-2xl px-6 pb-8 pt-16 text-center sm:pt-20">
           <p className="font-script text-4xl text-blossom-rose sm:text-5xl">Blossom Events</p>
-          <h1 className="mt-2 font-display text-4xl font-bold uppercase leading-tight tracking-wide text-blossom-deeprose sm:text-6xl">
-            Tando Adam
+
+          <h1 className="mt-4 font-display font-bold uppercase leading-none tracking-wide">
+            <span className="relative inline-block px-2">
+              <span className="absolute inset-x-0 top-1/2 -z-10 mx-auto block h-16 -translate-y-1/2 -rotate-1 rounded-[2rem] bg-blossom-blush/45 sm:h-24" aria-hidden="true" />
+              <span className="text-5xl text-blossom-deeprose sm:text-7xl">Eat</span>
+              <span className="text-5xl text-blossom-sage sm:text-7xl"> Festival</span>
+            </span>
+            <svg viewBox="0 0 220 18" className="mx-auto mt-2 h-4 w-56 sm:h-5 sm:w-72" aria-hidden="true">
+              <path d="M4 12 C 60 4, 120 18, 216 8" fill="none" stroke="#d9a441" strokeWidth="5" strokeLinecap="round" />
+              <circle cx="216" cy="8" r="5" fill="#d16b82" />
+            </svg>
           </h1>
-          <div className="my-3">
-            <RibbonBanner>Eat Festival</RibbonBanner>
+
+          <div className="mt-6 flex items-center justify-center gap-3">
+            <span className="font-display text-xs font-semibold uppercase tracking-[0.35em] text-blossom-deeprose sm:text-sm">
+              Tando Adam
+            </span>
+            <div className="mx-auto my-2 h-5 w-px bg-blossom-rose/40" aria-hidden="true" />
+            <span className="font-body text-xs font-semibold uppercase tracking-[0.2em] text-blossom-sage sm:text-sm">
+              Vote for your favorites 🌸
+            </span>
           </div>
-          <p className="mt-3 text-base font-semibold text-blossom-sage sm:text-lg">
-            Vote for your favorites in each category! 🌸
-          </p>
         </header>
 
         <div className="mx-auto max-w-2xl px-6">
